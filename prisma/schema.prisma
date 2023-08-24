@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model usuario {
+  id String @id @default(uuid())
+  nombre String
+  apellido String
+  email String
+  password String
+  confirmado Boolean @default(false)
+  token String
+  createdAt DateTime @default(now())
+  rol String @default("USER")
+  pagos pago[]
+  sala sala[]
+  @@unique([email])
+}
+
+model sala {
+  id String @id @default(uuid())
+  codigoAcceso String @unique
+  nombre String
+  createdAt DateTime @default(now())
+  creadorId String
+  creador usuario @relation(fields: [creadorId], references: [id])
+  invitados invitados[]
+}
+
+model invitados {
+  id Int @id @default(autoincrement())
+  nickname String
+  salaId String
+  createdAt DateTime @default(now())
+  puntaje Int @default(0)
+  sala sala @relation(fields: [salaId], references: [id])
+}
+
+model pago {
+  id Int @id @default(autoincrement())
+  monto Float
+  fecha DateTime @default(now())
+  fechaExpiracion DateTime
+  usuarioId String
+  usuario usuario @relation(fields: [usuarioId], references: [id])
+}
+
