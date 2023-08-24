@@ -95,7 +95,7 @@ const iniciarSesion = async (req, res) => {
 
   try {
 
-    const existeUsuario = await prisma.usuario.findFirst({
+    const existeUsuario = await prisma.usuario.findUnique({
       where: {
         email
       }
@@ -131,7 +131,9 @@ const iniciarSesion = async (req, res) => {
 }
 
 const perfil = async (req, res) => {
-  console.log(req.usuario)
+  const {usuario} = req
+
+  return res.json(usuario)
 }
 
 export default {

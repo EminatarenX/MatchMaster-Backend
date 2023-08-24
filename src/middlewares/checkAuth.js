@@ -24,7 +24,11 @@ const checkAuth = async(req, res, next) => {
         }
       })
 
-      req.usuario = usuario
+      req.usuario = {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+      }
       
       
       return next()
