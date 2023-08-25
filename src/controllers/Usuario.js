@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { generarId } from '../helpers/generarId.js';
 import { generarJWT } from '../helpers/generarJTW.js'
+import { emailRegistro } from '../helpers/emails.js'
+
 const prisma = new PrismaClient();
 
 const registrarUsuario = async (req, res) => {
@@ -26,6 +28,8 @@ const registrarUsuario = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const token = generarId()
+
+    emailRegistro({email, nombre, token}) 
 
     const usuarioCreado = await prisma.usuario.create({
       data: {
