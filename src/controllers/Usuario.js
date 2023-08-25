@@ -176,7 +176,50 @@ const cambiarPassword = async (req, res) => {
     console.log(error)
     const err = new Error('Hubo un error')
     return res.status(400).json({mensaje: err.message})
+  }finally{
+    await prisma.$disconnect()
   }
+}
+
+const actualizarPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const existeUsuario = await prisma.usuario.findFirst({
+      where: {
+        token
+      }
+    })
+
+    if(!existeUsuario){
+      const error = new Error('El token de ingreso no es valido')
+      return res.status(401).json({mensaje: error.message})
+    }
+
+    const salt = await bcrypt.genSalt(10)
+
+    const newPassword = await bcrypt.hash(password, salt)
+
+    await prisma.usuario.update({
+      where: {
+        id: existeUsuario.id
+      },
+      data: {
+        password: newPassword,
+        token: ''
+      }
+    })
+
+    return res.status(200).json({mensaje: 'Your password has been updated'})
+  } catch (error) {
+    console.log(error),
+     res.status(400).json({mensaje: 'Something went wrong'})
+
+  }finally{
+    await prisma.$disconnect()
+  }
+
 }
 
 export default {
@@ -184,5 +227,6 @@ export default {
   iniciarSesion,
   confirmarUsuario,
   perfil,
-  cambiarPassword
+  cambiarPassword,
+  actualizarPassword
 }
