@@ -8,6 +8,7 @@ router.post('/', UsuarioController.registrarUsuario)
 router.get('/confirmar/:id', UsuarioController.confirmarUsuario)
 router.post('/login', UsuarioController.iniciarSesion)
 router.get('/perfil', checkAuth, UsuarioController.perfil)
+router.post('/recuperar-password', UsuarioController.cambiarPassword)
 
 
 export default router

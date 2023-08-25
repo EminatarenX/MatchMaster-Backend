@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { generarId } from '../helpers/generarId.js';
 import { generarJWT } from '../helpers/generarJTW.js'
-import { emailRegistro } from '../helpers/emails.js'
+import { emailRegistro, emailRecuperarPassword } from '../helpers/emails.js'
 
 const prisma = new PrismaClient();
 
@@ -140,9 +140,49 @@ const perfil = async (req, res) => {
   return res.json(usuario)
 }
 
+const cambiarPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    
+    const existeUsuario = await prisma.usuario.findFirst({
+      where: {
+        email
+      }
+    })
+
+    if(!existeUsuario){
+      const error = new Error('El usuario no existe')
+      return res.status(400).json({mensaje: error.message})
+    }
+
+    const token = generarId()
+
+    const usuarioActualizado = await prisma.usuario.update({
+      where: {
+        email
+      },
+      data: {
+        token
+      }
+    })
+
+    emailRecuperarPassword({email, nombre: existeUsuario.nombre, token})
+
+    return res.status(200).json({mensaje: 'Se envió un email para recuperar la contraseña'})
+
+    
+  } catch (error) {
+    console.log(error)
+    const err = new Error('Hubo un error')
+    return res.status(400).json({mensaje: err.message})
+  }
+}
+
 export default {
   registrarUsuario,
   iniciarSesion,
   confirmarUsuario,
-  perfil
+  perfil,
+  cambiarPassword
 }
