@@ -52,13 +52,13 @@ const registrarUsuario = async (req, res) => {
 }
 
 const confirmarUsuario = async (req, res) => {
-  const { id } = req.params;
+  const { token } = req.params;
 
   try {
 
     const existeUsuario = await prisma.usuario.findFirst({
       where: {
-        id
+        token
       }
     })
 
@@ -72,9 +72,9 @@ const confirmarUsuario = async (req, res) => {
       return res.status(400).json({mensaje: error.message})
     }
 
-    const usuarioActualizado = await prisma.usuario.update({
+    await prisma.usuario.update({
       where: {
-        id
+        id: existeUsuario.id
       },
       data: {
         confirmado: true,
@@ -82,7 +82,7 @@ const confirmarUsuario = async (req, res) => {
       }
     })
 
-    return res.status(200).json({mensaje: 'Usuario confirmado!', usuario: usuarioActualizado})
+    return res.status(200).json({mensaje: 'Usuario confirmado!'})
     
     
   } catch (error) {
@@ -158,7 +158,7 @@ const cambiarPassword = async (req, res) => {
 
     const token = generarId()
 
-    const usuarioActualizado = await prisma.usuario.update({
+    await prisma.usuario.update({
       where: {
         email
       },
